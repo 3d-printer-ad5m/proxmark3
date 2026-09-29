@@ -73,7 +73,7 @@ window.ready = true;
 
 const views = {
   '01_hero_front_left':  { pos: [235, 185, 150], target: [55, 0, 26] },
-  '02_side':             { pos: [55, -330, 55], target: [55, 0, 32] },
+  '02_side':             { pos: [55, -320, 150], target: [55, 0, 30] },
   '03_rear_right':       { pos: [-170, -200, 135], target: [50, 0, 26] },
   '04_top_logo':         { pos: [230, -60, 250], target: [70, 0, 20] },
   '05_exploded':         { pos: [215, -290, 190], target: [45, 0, 30], explode: true },
