@@ -3,22 +3,31 @@
 Запрос: Lejla Omerbasic Dukic (CEVA Logistics, IMEA). Погрузчик белый, без логотипа.
 На вилах коробка с логотипом CEVA. Тираж 200 шт.
 
-![hero](renders/01_hero_front_left.png)
+Правки клиента по первым рендерам: «logo is wrong», «pallet below wood color and box
+white or black». Сделано: официальный логотип CEVA, паллет цвета дерева, коробка в двух
+вариантах — белая с синим логотипом и чёрная с белым (инверсная версия логотипа CEVA).
 
-| Сбоку | Сзади | Детали |
+| Белая коробка | Чёрная коробка |
+|---|---|
+| ![](renders/01_hero_white_box.png) | ![](renders/02_hero_black_box.png) |
+| ![](renders/03_side_white_box.png) | ![](renders/04_side_black_box.png) |
+
+| Сзади | Сверху | Детали |
 |---|---|---|
-| ![](renders/02_side.png) | ![](renders/03_rear_right.png) | ![](renders/05_exploded.png) |
+| ![](renders/05_rear_right.png) | ![](renders/06_top_logo.png) | ![](renders/07_exploded.png) |
 
 **Габарит модели:** 108 × 49 × 70 мм (Д × Ш × В), около 49 г PLA.
 Стиль «игрушечный», как на референсе: закрытая кабина с тёмными стёклами, мачта и вилы
-чёрные, колёса с белыми дисками, красный маячок и задние фонари. На вилах синий пластиковый
-паллет, на нём крафтовая коробка с логотипом на четырёх видимых гранях (перед, бока, верх).
+чёрные, колёса с белыми дисками, красный маячок и задние фонари. На вилах деревянный
+паллет, на нём коробка с логотипом CEVA на четырёх видимых гранях (перед, бока, верх).
 
-> ⚠️ **Логотип в модели — заглушка** (системный шрифт + красный шеврон вместо «A»).
-> Для производства нужен официальный вектор (SVG/AI/EPS) и Pantone от клиента. Его
-> подставляют в `logo_navy_2d()` / `logo_red_2d()` в `ceva_forklift.scad` через
-> `import("ceva_navy.svg")`. Строка «LOGISTICS» при такой высоте букв (~1,5 мм) соплом 0.4
-> не пропечатается; её либо убирают, либо печатают коробку соплом 0.2.
+**Логотип:** официальный словесный знак CEVA (2023) из `logo/ceva_logo_2023.svg`
+(Wikimedia Commons, public domain как простые шрифт и фигуры; товарный знак CEVA).
+`tools/logo_to_scad.py` переводит его в `logo/ceva_logo.scad`. На гранях 27,5 мм шириной:
+буквы ~5,4 мм высотой, толщина штриха ~1,4 мм, зазоры ~0,7 мм — соплом 0.4 печатается.
+Строка «LOGISTICS» при таком размере была бы ~1,5 мм высотой со штрихом ~0,25 мм, это FDM
+не пропечатает, поэтому на коробке только «CEVA». Если клиент прислал свой вектор, заменить
+SVG и перезапустить конвертер.
 
 ## Детали и печать
 
@@ -29,10 +38,11 @@
 | Файл 3MF | Деталь | Цвета (слоты) | Слой | Заполнение | На стол | Время стола* |
 |---|---|---|---|---|---|---|
 | `3mf/ceva_forklift_1_body.3mf` | кузов | 1 белый, 2 чёрный (окна, ступени, решётка), 3 красный (фонари, маячок) | 0.20 | Lightning (или Grid 15 %) | 16 | ~12,8 ч |
-| `3mf/ceva_forklift_2_load.3mf` | паллет + коробка | 4 крафт, 5 синий (паллет + буквы), 3 красный (шеврон) | 0.16 | Lightning | 42 | ~17,9 ч |
+| `3mf/ceva_forklift_2_load_white_box.3mf` | паллет + белая коробка | 4 дерево (паллет), 1 белый (коробка), 5 синий (cev), 3 красный (A) | 0.16 | Lightning | 42 | ~17,8 ч |
+| `3mf/ceva_forklift_2_load_black_box.3mf` | паллет + чёрная коробка | 4 дерево, 2 чёрный (коробка), 1 белый (cev), 3 красный (A) | 0.16 | Lightning | 42 | ~17,8 ч |
 | `3mf/ceva_forklift_3_mast.3mf` | мачта + каретка + вилы | 2 чёрный | 0.20 | Grid 15 % | 40 | ~19,4 ч |
 | `3mf/ceva_forklift_4_wheels.3mf` | колёса 2 × Ø22 + 2 × Ø18 | 2 чёрный, 1 белый (диск, первые 3 слоя) | 0.20 | по умолч. | 100 | 8–10,7 ч |
-| `3mf/ceva_forklift_SAMPLE_full_kit.3mf` | **весь комплект на одном столе** для образца | все 5 | 0.20 | — | 1 компл. | ~4,5 ч |
+| `3mf/ceva_forklift_SAMPLE_white_box.3mf`, `..._black_box.3mf` | **весь комплект на одном столе** для образца | все 5 | 0.20 | — | 1 компл. | ~4,5 ч |
 
 \* С запасом +10 % к оценке слайсера, со сменами цвета и 10 мин на снятие стола.
 
@@ -43,16 +53,17 @@
 **Настройки Bambu Studio:** принтер H2C, все хотэнды 0.4, Textured PEI, пресет
 `0.20mm Standard @BBL H2C` (для коробки `0.16mm`), стенки 2, верх 5 слоёв, prime tower
 включён. В 3MF каждой части уже назначен слот филамента:
-**1 White · 2 Black · 3 Red · 4 Kraft · 5 Navy.** Нужно только выставить филаменты и цвета
+**1 White · 2 Black · 3 Red · 4 Wood · 5 Navy.** Нужно только выставить филаменты и цвета
 в слотах. Распределение по соплам оставить автоматическим; удобно, чтобы основной цвет
-стола (белый для кузова, крафт для коробки, чёрный для колёс) шёл через фиксированное сопло,
+стола (белый для кузова и белой коробки, чёрный для чёрной коробки и колёс) шёл через фиксированное сопло,
 а остальные через Vortek.
 Для производства: загрузить 3MF, затем правый клик → *Fill bed with copies*
 (или добавить копии и нажать `A`), освободив место под prime tower.
 
 **Филамент:** рекомендую PLA Matte (матовый скрывает слои и смотрится дороже). Например:
-Ivory White, Charcoal, Scarlet Red, Latte Brown / Desert Tan и Dark Blue. Синий подобрать
-по Pantone CEVA на образце.
+Ivory White, Charcoal, Scarlet Red, Dark Blue; для паллета — PLA Wood (с древесной
+крошкой, выглядит как настоящее дерево) или PLA Matte Latte Brown. PLA Wood проверить
+на образце. Синий логотипа — `#1d2546`, красный — фирменный CEVA; подобрать на образце.
 
 ## Сборка (≈3 мин/шт)
 
@@ -79,25 +90,26 @@ H2C: скорости и ускорения как в `0.20mm Standard @BBL`, `t
 | Деталь | шт/стол | столов | мин/шт | г/шт | смен цвета на стол |
 |---|---|---|---|---|---|
 | Кузов | 16 | 14 | 47,9 | 22,6 | 157 переключений + 1 смена хотэнда |
-| Паллет + коробка | 42 | 5 | 25,6 | 10,4 | 50 + 44 |
+| Паллет + коробка | 42 | 5 | 25,5 | 10,3 | 42 + 38 |
 | Мачта | 40 | 6 | 29,1 | 8,9 | 0 |
-| Колесо Ø22 (×2) | 100 | 5 | 6,4 | 2,0 | 4 |
-| Колесо Ø18 (×2) | 100 | 5 | 4,8 | 1,3 | 4 |
+| Колесо Ø22 (×2) | 100 | 5 | 6,4 | 2,0 | 3 |
+| Колесо Ø18 (×2) | 100 | 5 | 4,8 | 1,3 | 3 |
 
 - **Машинное время:** ≈ **478 ч** на весь заказ (35 столов), ≈ 2,3 ч на комплект.
 - **Сроки печати:** 1 × H2C ≈ **22 дня** (22 ч/сутки), 2 принтера ≈ 11 дней,
   3 принтера ≈ 7 дней. Мачта одноцветная, её можно печатать на любом другом принтере.
   Тогда на H2C остаётся ≈ 360 ч.
-- **Филамент:** ≈ 10,2 кг: белый 4,2 · чёрный 3,8 · синий 1,3 · крафт 0,9 · красный 0,05.
-  Купить: белый 5 кг, чёрный 5 кг, синий 2 кг, крафт 1 кг, красный 1 кг.
+- **Филамент:** ≈ 10,2 кг. С белой коробкой: белый 5,1 · чёрный 3,8 · дерево 1,3 ·
+  красный и синий по 0,05. Купить: белый 6 кг, чёрный 5 кг, дерево 2 кг, красный 1 кг, синий 1 кг.
+  С чёрной коробкой ~0,9 кг переходит из белого в чёрный, синий не нужен.
 - **Ручная работа:** ≈ 20 ч (сборка, контроль, упаковка, смена столов).
 
 **Себестоимость (AED):**
 
 | Статья | Всего | На 1 шт |
 |---|---|---|
-| Филамент (100 AED/кг) | 1 018 | 5,09 |
-| Машинное время (3 AED/ч: амортизация + сервис + электричество) | 1 434 | 7,17 |
+| Филамент (100 AED/кг) | 1 017 | 5,08 |
+| Машинное время (3 AED/ч: амортизация + сервис + электричество) | 1 433 | 7,16 |
 | Работа (50 AED/ч) | 979 | 4,90 |
 | Клей, расходники | 100 | 0,50 |
 | Упаковка (индивидуальная коробочка + пузырка) | 800 | 4,00 |
@@ -108,7 +120,9 @@ H2C: скорости и ускорения как в `0.20mm Standard @BBL`, `t
 Рекомендую **65–75 AED/шт**, например **69 AED × 200 = 13 800 AED + 5 % VAT**
 (≈ 3 760 USD). Ниже 45 AED/шт опускаться не стоит: не окупается занятость принтера на три недели.
 
-**Сроки для клиента:** образец через 2–3 рабочих дня после получения вектора логотипа.
+Цвет коробки на цену и сроки не влияет.
+
+**Сроки для клиента:** образец через 2–3 рабочих дня после подтверждения цвета коробки.
 Тираж через **3–4 недели** после утверждения образца на одном H2C, или **~2 недели**
 при двух принтерах.
 
@@ -117,32 +131,29 @@ H2C: скорости и ускорения как в `0.20mm Standard @BBL`, `t
 1. На референсе флешка (PVC USB). Нужна функция USB или только настольная модель?
    Флешка — это отдельная доработка: модуль UDP в противовесе, ориентировочно +20–25 AED/шт
    и +1 неделя на закупку модулей.
-2. Вектор логотипа и Pantone; нужна ли строка «LOGISTICS».
-3. Коробка крафтовая: ок, или белая / синяя?
-4. Размер ~11 см: ок? Масштаб 90 % сокращает время примерно на 20 %.
-5. Упаковка: простая коробочка или брендированная подарочная?
-6. Дата и место доставки.
+2. Цвет коробки: белая или чёрная (оба варианта на рендерах). Устраивает ли логотип без
+   строки «LOGISTICS».
+3. Размер ~11 см: ок? Масштаб 90 % сокращает время примерно на 20 %.
+4. Упаковка: простая коробочка или брендированная подарочная?
+5. Дата и место доставки.
 
-## Черновик ответа клиенту (EN)
+## Ответ клиенту с ценой (EN)
 
-> Dear Lejla,
+> Hi Lejla,
 >
-> Thank you for your enquiry. Yes, we can produce this.
+> Updated renders attached: official CEVA logo, wooden pallet, and the carton in two options,
+> white with the blue logo or black with the white logo. Please let us know which one you prefer.
 >
-> We have prepared a 3D design based on your reference: a white forklift (no branding) carrying
-> a CEVA-branded carton on a pallet. Size approx. 11 × 5 × 7 cm, full-colour 3D print, the logo is
-> printed into the carton itself, so it will not peel or fade. Renders attached.
+> **Quotation, 200 pcs:** AED 69.00 per piece, total AED 13,800 + 5% VAT (AED 14,490).
+> Includes production, assembly, one pre-production sample, individual packaging and delivery
+> within Dubai. Same price for white or black carton.
 >
-> **Quotation, 200 pcs:** AED 69.00 per piece, total AED 13,800 + 5% VAT, including design,
-> one pre-production sample, individual packaging and delivery within Dubai.
+> **Lead time:** sample in 2–3 working days after you confirm the carton colour, then 3–4 weeks
+> for the full quantity after sample approval.
 >
-> **Lead time:** sample within 2–3 working days after we receive your logo in vector format
-> (AI/EPS/SVG/PDF) with Pantone references; mass production 3–4 weeks after sample approval.
->
-> Could you please confirm:
-> 1. Is a USB flash-drive function required (as in the reference picture), or a desk model only?
-> 2. Preferred carton colour: kraft/brown (as shown), white or CEVA blue?
-> 3. Packaging requirements and the required delivery date.
+> Model size approx. 11 × 5 × 7 cm, full-colour 3D print; the logo is printed into the carton
+> itself, so it will not peel or fade. At this size the "LOGISTICS" line under the logo is too
+> fine to print, so the carton shows the CEVA wordmark.
 >
 > Best regards,
 > live3d.ae
@@ -151,9 +162,11 @@ H2C: скорости и ускорения как в `0.20mm Standard @BBL`, `t
 
 ```
 ceva_forklift.scad      параметрическая модель (OpenSCAD); все размеры в начале файла
-stl/                    отдельные цветовые части в ориентации печати (11 шт)
+logo/                   логотип CEVA: исходный SVG и сгенерированный ceva_logo.scad
+stl/                    отдельные цветовые части в ориентации печати (12 шт)
 3mf/                    проекты Bambu Studio с назначенными слотами филамента
 renders/                превью
+tools/logo_to_scad.py   logo/*.svg → logo/ceva_logo.scad
 tools/export_stl.sh     .scad → stl/
 tools/make_3mf.py       stl/ → 3mf/
 tools/render.mjs        stl/ → renders/  (Playwright + three.js)
@@ -162,4 +175,4 @@ tools/h2c_like.ini      профиль PrusaSlicer, по которому нар
 ```
 
 Пересборка: `tools/export_stl.sh && python3 tools/make_3mf.py && python3 tools/estimate.py`
-(нужны OpenSCAD 2021+, Python: `trimesh numpy networkx lxml manifold3d`).
+(нужны OpenSCAD 2021+, Python: `trimesh numpy networkx lxml manifold3d svgelements shapely`).

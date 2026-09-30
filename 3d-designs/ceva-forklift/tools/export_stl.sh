@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 mkdir -p stl
 parts="body_white body_black body_red mast_black
        wheelF_black wheelF_white wheelR_black wheelR_white
-       load_kraft load_navy load_red"
+       load_pallet load_box load_logo load_accent"
 for p in $parts; do
     echo "== $p"
     openscad -q -D "part=\"$p\"" -o "stl/$p.stl" ceva_forklift.scad &

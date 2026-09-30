@@ -37,8 +37,9 @@ PLATES = {
     #  key      copies  hours          grams   lh    fixed-nozzle colour, colours
     'body':   dict(n=16,  h=10 + 52/60, g=342.8, lh=0.20, fixed='white',
                    parts={'white': 'body_white', 'black': 'body_black', 'red': 'body_red'}),
-    'load':   dict(n=42,  h=15 + 40/60, g=425.0, lh=0.16, fixed='kraft',
-                   parts={'kraft': 'load_kraft', 'navy': 'load_navy', 'red': 'load_red'}),
+    # white carton shown; the black carton swaps white<->black/navy, same counts
+    'load':   dict(n=42,  h=15 + 40/60, g=425.0, lh=0.16, fixed='white',
+                   parts={'white': 'load_box', 'wood': 'load_pallet', 'navy': 'load_logo', 'red': 'load_accent'}),
     'mast':   dict(n=40,  h=17 + 28/60, g=355.4, lh=0.20, fixed='black',
                    parts={'black': 'mast_black'}),
     'wheelF': dict(n=100, h=9 + 32/60,  g=195.8, lh=0.20, fixed='black',

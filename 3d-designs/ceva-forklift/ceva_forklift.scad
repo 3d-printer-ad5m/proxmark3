@@ -10,18 +10,21 @@
 //  Parts: body_white body_black body_red
 //         mast_black
 //         wheelF_black wheelF_white wheelR_black wheelR_white
-//         load_kraft load_navy load_red
-//         assembly (coloured preview of the whole model)
+//         load_pallet (wood)  load_box (white or black)
+//         load_logo (navy on a white box / white on a black box)  load_accent (red)
+//         assembly (coloured preview; -D 'box_colour="black"' for the black box)
 //
 //  Kit per forklift: 1x body, 1x mast, 2x wheelF, 2x wheelR, 1x load.
 //  Wheel parts are exported once; print 2 of each (they are symmetric).
 //
-//  !! The CEVA logo below is a PLACEHOLDER built from a system font.
-//  !! Replace logo_navy_2d()/logo_red_2d() with the official vector
-//  !! artwork (import("ceva_logo_navy.svg") etc.) before production.
+//  The CEVA wordmark comes from logo/ceva_logo_2023.svg via
+//  tools/logo_to_scad.py -> logo/ceva_logo.scad.
 // =====================================================================
 
+include <logo/ceva_logo.scad>
+
 part = "assembly";
+box_colour = "white";   // preview only: "white" or "black"
 
 $fn = 64;
 eps = 0.01;
@@ -67,8 +70,8 @@ box_x0 = 73.5; box_len = 32; box_hw = 16; box_h = 30;
 box_top = pal_top + box_h;
 
 // ---------------- colours (preview only) ----------------
-C_WHITE = "#f4f4f2"; C_BLACK = "#222222"; C_RED = "#d7282f";
-C_NAVY  = "#1d2a5c"; C_KRAFT = "#c9a36b";
+C_WHITE = "#f4f4f2"; C_BLACK = "#222222"; C_RED = "#e3001b";
+C_NAVY  = "#1d2546"; C_WOOD  = "#b07a45";
 
 // =====================================================================
 //  helpers
@@ -265,10 +268,10 @@ module wheel_black(r, w) { difference() { wheel_shape(r, w, peg_len(r, w)); hub_
 module wheel_white(r, w) { intersection() { wheel_shape(r, w, peg_len(r, w)); hub_region(r); } }
 
 // =====================================================================
-//  LOAD: navy plastic pallet + kraft box with CEVA logo
+//  LOAD: wooden pallet + CEVA carton (white or black) with logo
 //  (printed upright; slides onto the forks)
 // =====================================================================
-module pallet() {
+module load_pallet() {
     for (y = [-pal_hw, -2, pal_hw - 4]) translate([pal_x0, y, 0]) cube([pal_len, 4, pal_stringer_h + eps]);
     for (i = [0 : 4]) translate([pal_x0 + i * 7.5, -pal_hw, pal_stringer_h]) cube([6, 2 * pal_hw, pal_deck_t]);
     // front bottom deck board: stiffens the base and gives bed adhesion
@@ -278,33 +281,20 @@ module pallet() {
         translate([pal_x0 + 3, s > 0 ? yr : -yr - 1.2, 0]) cube([pal_len - 6, 1.2, pal_stringer_h + eps]);
 }
 module box_raw() {
-    translate([0, 0, pal_top - eps]) hull() {
-        linear_extrude(box_h - 0.6 + eps) rrect(box_x0, box_x0 + box_len, box_hw, 0.8);
+    translate([0, 0, pal_top]) hull() {     // sits exactly on the deck (separate colour part)
+        linear_extrude(box_h - 0.6) rrect(box_x0, box_x0 + box_len, box_hw, 0.8);
         translate([0, 0, box_h - 0.6]) linear_extrude(0.6) offset(delta = -0.6) rrect(box_x0, box_x0 + box_len, box_hw, 0.8);
     }
 }
 
-// ---- logo placeholder, 2D, centred on origin, ~27 x 6.6 mm ----
-logo_h   = 6.6;                 // x-height of the lettering
-cev_w    = logo_h * 2.92;       // "cev" in Liberation Sans Bold keeps its aspect
-chev_w   = logo_h * 0.95;       // red chevron
-chev_t   = 1.8;                 // chevron stroke (>= 4 lines of a 0.4 nozzle)
-logo_gap = 1.0;
-logo_w   = cev_w + logo_gap + chev_w;
-module logo_navy_2d() {    // "cev"
-    translate([-logo_w / 2, -logo_h / 2])
-        resize([cev_w, logo_h]) text("cev", size = 10, font = "Liberation Sans:style=Bold", valign = "baseline");
-}
-module logo_red_2d() {     // red chevron standing in for the "A"
-    w = chev_w; h = logo_h;
-    alpha = atan((w / 2) / h);              // half angle at the apex
-    dx = chev_t / cos(alpha);               // horizontal leg width
-    dz = chev_t / sin(alpha);               // apex drop of the inner edge
-    translate([logo_w / 2 - w, -logo_h / 2]) difference() {
-        polygon([[0, 0], [w / 2, h], [w, 0]]);
-        polygon([[dx - tan(alpha), -1], [w / 2, h - dz], [w - dx + tan(alpha), -1]]);
-    }
-}
+// ---- official CEVA wordmark (logo/ceva_logo.scad, from logo/ceva_logo_2023.svg) ----
+// The "LOGISTICS" strapline would be ~1.5 mm tall with 0.25 mm strokes at this
+// size, below what a 0.4 mm nozzle can print, so only the wordmark is used.
+logo_w = 27.5;                          // wordmark width on each face
+logo_s = logo_w / CEVA_WORD_W;
+module logo_main_2d()   scale(logo_s) ceva_word_2d();    // "cev": navy on white box, white on black box
+module logo_accent_2d() scale(logo_s) ceva_accent_2d();  // red "A"
+
 // logo on the 4 visible faces (front, both sides, top)
 module logo_faces(depth) {
     xc = box_x0 + box_len / 2; zc = pal_top + box_h / 2;
@@ -321,9 +311,9 @@ module logo_faces(depth) {
     multmatrix([[0,-1,0,xc],[1,0,0,0],[0,0,1,box_top],[0,0,0,1]])
         translate([0, 0, -depth]) linear_extrude(depth + 1) children();
 }
-module load_kraft() { difference() { box_raw(); logo_faces(logo_depth) { logo_navy_2d(); logo_red_2d(); } } }
-module load_navy()  { pallet(); intersection() { box_raw(); logo_faces(logo_depth) logo_navy_2d(); } }
-module load_red()   { intersection() { box_raw(); logo_faces(logo_depth) logo_red_2d(); } }
+module load_box()    { difference() { box_raw(); logo_faces(logo_depth) { logo_main_2d(); logo_accent_2d(); } } }
+module load_logo()   { intersection() { box_raw(); logo_faces(logo_depth) logo_main_2d(); } }
+module load_accent() { intersection() { box_raw(); logo_faces(logo_depth) logo_accent_2d(); } }
 
 // =====================================================================
 //  assembly / wheel placement
@@ -339,9 +329,10 @@ module assembly() {
     color(C_BLACK) mast();
     place_wheels(fw_r, fw_w, fw_x) { color(C_BLACK) wheel_black(fw_r, fw_w); color(C_WHITE) wheel_white(fw_r, fw_w); }
     place_wheels(rw_r, rw_w, rw_x) { color(C_BLACK) wheel_black(rw_r, rw_w); color(C_WHITE) wheel_white(rw_r, rw_w); }
-    color(C_KRAFT) load_kraft();
-    color(C_NAVY)  load_navy();
-    color(C_RED)   load_red();
+    color(C_WOOD)  load_pallet();
+    color(box_colour == "black" ? C_BLACK : C_WHITE) load_box();
+    color(box_colour == "black" ? C_WHITE : C_NAVY)  load_logo();
+    color(C_RED)   load_accent();
 }
 
 // =====================================================================
@@ -356,6 +347,7 @@ else if (part == "wheelF_black") wheel_black(fw_r, fw_w);
 else if (part == "wheelF_white") wheel_white(fw_r, fw_w);
 else if (part == "wheelR_black") wheel_black(rw_r, rw_w);
 else if (part == "wheelR_white") wheel_white(rw_r, rw_w);
-else if (part == "load_kraft")   load_kraft();
-else if (part == "load_navy")    load_navy();
-else if (part == "load_red")     load_red();
+else if (part == "load_pallet")  load_pallet();
+else if (part == "load_box")     load_box();
+else if (part == "load_logo")    load_logo();
+else if (part == "load_accent")  load_accent();

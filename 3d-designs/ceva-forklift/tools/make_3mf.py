@@ -5,7 +5,10 @@ Each forklift component becomes ONE object made of several parts, and every
 part already has its filament slot assigned (Metadata/model_settings.config),
 so Bambu Studio opens it ready for multi-colour printing:
 
-    slot 1 White   slot 2 Black   slot 3 Red   slot 4 Kraft   slot 5 Navy
+    slot 1 White   slot 2 Black   slot 3 Red   slot 4 Wood   slot 5 Navy
+
+The carton comes in two variants: white with a navy logo, or black with a
+white logo (CEVA reversed version). The red "A" and wood pallet are shared.
 
 Only geometry + part/filament assignment is stored; printer, process and
 filament presets are chosen in Bambu Studio (H2C, 0.4 nozzle, PLA).
@@ -23,11 +26,12 @@ ROOT = os.path.join(HERE, '..')
 STL = os.path.join(ROOT, 'stl')
 OUT = os.path.join(ROOT, '3mf')
 
-SLOT = {'white': 1, 'black': 2, 'red': 3, 'kraft': 4, 'navy': 5}
+SLOT = {'white': 1, 'black': 2, 'red': 3, 'wood': 4, 'navy': 5}
 
 COMPONENTS = {
     'body':   [('body_white', 'white'), ('body_black', 'black'), ('body_red', 'red')],
-    'load':   [('load_kraft', 'kraft'), ('load_navy', 'navy'), ('load_red', 'red')],
+    'loadW':  [('load_box', 'white'), ('load_pallet', 'wood'), ('load_logo', 'navy'), ('load_accent', 'red')],
+    'loadB':  [('load_box', 'black'), ('load_pallet', 'wood'), ('load_logo', 'white'), ('load_accent', 'red')],
     'mast':   [('mast_black', 'black')],
     'wheelF': [('wheelF_black', 'black'), ('wheelF_white', 'white')],
     'wheelR': [('wheelR_black', 'black'), ('wheelR_white', 'white')],
@@ -35,11 +39,15 @@ COMPONENTS = {
 
 # (file name, [(component, x, y), ...]) - positions are bed coordinates (mm)
 JOBS = [
-    ('ceva_forklift_SAMPLE_full_kit', [('body', 95, 105), ('load', 95, 200), ('mast', 200, 105),
-                                       ('wheelF', 180, 190), ('wheelF', 210, 190),
-                                       ('wheelR', 180, 220), ('wheelR', 210, 220)]),
+    ('ceva_forklift_SAMPLE_white_box', [('body', 95, 105), ('loadW', 95, 200), ('mast', 200, 105),
+                                        ('wheelF', 180, 190), ('wheelF', 210, 190),
+                                        ('wheelR', 180, 220), ('wheelR', 210, 220)]),
+    ('ceva_forklift_SAMPLE_black_box', [('body', 95, 105), ('loadB', 95, 200), ('mast', 200, 105),
+                                        ('wheelF', 180, 190), ('wheelF', 210, 190),
+                                        ('wheelR', 180, 220), ('wheelR', 210, 220)]),
     ('ceva_forklift_1_body',   [('body', 160, 160)]),
-    ('ceva_forklift_2_load',   [('load', 160, 160)]),
+    ('ceva_forklift_2_load_white_box', [('loadW', 160, 160)]),
+    ('ceva_forklift_2_load_black_box', [('loadB', 160, 160)]),
     ('ceva_forklift_3_mast',   [('mast', 160, 160)]),
     ('ceva_forklift_4_wheels', [('wheelF', 145, 145), ('wheelF', 175, 145),
                                 ('wheelR', 145, 175), ('wheelR', 175, 175)]),
@@ -111,7 +119,7 @@ def build(job, placements):
             f'<model unit="millimeter" xml:lang="en-US" xmlns="{NS}" xmlns:p="{NS_P}" requiredextensions="p">\n'
             f' <metadata name="Title">{job}</metadata>\n'
             f' <metadata name="Designer">live3d.ae</metadata>\n'
-            f' <metadata name="Description">CEVA promo forklift. Filament slots: 1 White, 2 Black, 3 Red, 4 Kraft, 5 Navy</metadata>\n'
+            f' <metadata name="Description">CEVA promo forklift. Filament slots: 1 White, 2 Black, 3 Red, 4 Wood, 5 Navy</metadata>\n'
             f' <resources>\n' + ''.join(res) + ' </resources>\n'
             f' <build p:UUID="{uuid.uuid4()}">\n' + '\n'.join(items) + '\n </build>\n</model>\n')
     content_types = ('<?xml version="1.0" encoding="UTF-8"?>\n'

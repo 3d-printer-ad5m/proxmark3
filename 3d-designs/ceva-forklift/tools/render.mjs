@@ -35,7 +35,7 @@ ground.receiveShadow = true; scene.add(ground);
 const grid = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshBasicMaterial({ color: '#e6e9ee' }));
 grid.position.z = -0.05; scene.add(grid);
 
-const COL = { white:'#f2f2ef', black:'#26272a', red:'#d3262d', navy:'#1f2c63', kraft:'#c8a06a' };
+const COL = { white:'#f2f2ef', black:'#26272a', red:'#e3001b', navy:'#1d2546', wood:'#b07a45' };
 const loader = new STLLoader();
 const load = (f) => new Promise(r => loader.load('/stl/' + f + '.stl', g => { g.computeVertexNormals(); r(g); }));
 const mat = (c) => new THREE.MeshStandardMaterial({ color: COL[c], roughness: c === 'black' ? 0.55 : 0.62, metalness: 0.0 });
@@ -45,7 +45,14 @@ const groups = { body: new THREE.Group(), mast: new THREE.Group(), load: new THR
 for (const [f, c] of [['body_white','white'],['body_black','black'],['body_red','red']])
   groups.body.add(mesh(await load(f), c, new THREE.Matrix4().makeTranslation(0, 0, 4)));
 groups.mast.add(mesh(await load('mast_black'), 'black'));
-for (const [f, c] of [['load_kraft','kraft'],['load_navy','navy'],['load_red','red']]) groups.load.add(mesh(await load(f), c));
+const loadMesh = {};
+for (const [f, c] of [['load_pallet','wood'],['load_box','white'],['load_logo','navy'],['load_accent','red']])
+  groups.load.add(loadMesh[f] = mesh(await load(f), c));
+// white carton: navy logo; black carton: white logo (CEVA reversed version)
+const setBox = (v) => {
+  loadMesh.load_box.material.color.set(COL[v === 'black' ? 'black' : 'white']);
+  loadMesh.load_logo.material.color.set(COL[v === 'black' ? 'white' : 'navy']);
+};
 const wheelDefs = [['wheelF', 45, 11], ['wheelR', 14, 9]];
 for (const [n, x, r] of wheelDefs) {
   const gb = await load(n + '_black'), gw = await load(n + '_white');
@@ -59,6 +66,7 @@ for (const g of Object.values(groups)) scene.add(g);
 const cam = new THREE.PerspectiveCamera(24, W / H, 1, 3000); cam.up.set(0, 0, 1);
 window.shot = (view) => {
   const v = view;
+  setBox(v.box || 'white');
   groups.body.position.set(...(v.explode ? [-25, 0, 18] : [0, 0, 0]));
   groups.mast.position.set(...(v.explode ? [8, 0, 10] : [0, 0, 0]));
   groups.load.position.set(...(v.explode ? [34, 0, 22] : [0, 0, 0]));
@@ -72,11 +80,13 @@ window.ready = true;
 </script></body></html>`;
 
 const views = {
-  '01_hero_front_left':  { pos: [235, 185, 150], target: [55, 0, 26] },
-  '02_side':             { pos: [55, -320, 150], target: [55, 0, 30] },
-  '03_rear_right':       { pos: [-170, -200, 135], target: [50, 0, 26] },
-  '04_top_logo':         { pos: [230, -60, 250], target: [70, 0, 20] },
-  '05_exploded':         { pos: [215, -290, 190], target: [45, 0, 30], explode: true },
+  '01_hero_white_box':   { pos: [235, 185, 150], target: [55, 0, 26] },
+  '02_hero_black_box':   { pos: [235, 185, 150], target: [55, 0, 26], box: 'black' },
+  '03_side_white_box':   { pos: [55, -320, 150], target: [55, 0, 30] },
+  '04_side_black_box':   { pos: [55, -320, 150], target: [55, 0, 30], box: 'black' },
+  '05_rear_right':       { pos: [-170, -200, 135], target: [50, 0, 26] },
+  '06_top_logo':         { pos: [230, -60, 250], target: [70, 0, 20] },
+  '07_exploded':         { pos: [215, -290, 190], target: [45, 0, 30], explode: true },
 };
 
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
